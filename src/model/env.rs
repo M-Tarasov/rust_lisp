@@ -1,4 +1,5 @@
 use std::cell::RefCell;
+use std::collections::HashSet;
 use std::rc::Rc;
 use std::{collections::HashMap, fmt::Debug};
 
@@ -91,6 +92,20 @@ impl Env {
         output.push('\n');
         output.push_str(indent);
         output.push('}');
+    }
+
+    pub fn symbols(&self) -> Vec<Symbol> {
+        let mut symbols = HashSet::new();
+        self.symbols_recursive(&mut symbols);
+        symbols.into_iter().collect()
+    }
+
+    fn symbols_recursive(&self, symbols: &mut HashSet<Symbol>) {
+        symbols.extend(self.entries.keys().cloned());
+
+        if let Some(parent) = &self.parent {
+            parent.borrow().symbols_recursive(symbols);
+        }
     }
 }
 
